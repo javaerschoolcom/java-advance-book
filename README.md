@@ -1,2 +1,6 @@
-# java-advance-book
-java进阶文档
+# JavaEE进阶知识
+
+* 作者:梁锐(lero)
+* Q  Q:125836941
+
+> 2018年5月29日 初始化
