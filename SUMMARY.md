@@ -9,4 +9,5 @@
     * [第005讲 Cookie&Session](chapter01-section05.md)
     * [第006讲 文件上传和下载](chapter01-section06.md)
     * [第007讲 JSP技术](chapter01-section07.md)
-    * [第008讲 EL表达式](chapter01-section08.md)
+    * [第008讲 EL](chapter01-section08.md)
+    * [第008讲 JSTL](chapter01-section09.md)
