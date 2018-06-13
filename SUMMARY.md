@@ -11,3 +11,4 @@
     * [第007讲 JSP技术](chapter01-section07.md)
     * [第008讲 EL](chapter01-section08.md)
     * [第008讲 JSTL](chapter01-section09.md)
+    * [第009讲 SQL](chapter01-section10.md)
