@@ -788,3 +788,129 @@ goods_id(pk)        goods_name           goods_num
 drop trigger  user_log;#删除触发器
 ```
 
+### 常见面试题
+
+##### 统计数据行列转换
+
+> 常用于统计，报表
+
+``` sql
+-- 创建表  学生表
+CREATE TABLE `student` (
+    `stuid` VARCHAR(16) NOT NULL COMMENT '学号',
+    `stunm` VARCHAR(20) NOT NULL COMMENT '学生姓名',
+    PRIMARY KEY (`stuid`)
+)
+COLLATE='utf8_general_ci'
+ENGINE=InnoDB;
+
+
+-- 课程表
+
+CREATE TABLE `courses` (
+    `courseno` VARCHAR(20) NOT NULL,
+    `coursenm` VARCHAR(100) NOT NULL,
+    PRIMARY KEY (`courseno`)
+)
+COMMENT='课程表'
+COLLATE='utf8_general_ci'
+ENGINE=InnoDB;
+
+
+-- 成绩表
+CREATE TABLE `score` (
+    `stuid` VARCHAR(16) NOT NULL,
+    `courseno` VARCHAR(20) NOT NULL,
+    `scores` FLOAT NULL DEFAULT NULL,
+    PRIMARY KEY (`stuid`, `courseno`)
+)
+COLLATE='utf8_general_ci'
+ENGINE=InnoDB;
+
+-- 插入数据
+
+-- 学生表数据
+
+Insert Into student (stuid, stunm) Values('1001', '张三');
+Insert Into student (stuid, stunm) Values('1002', '李四');
+Insert Into student (stuid, stunm) Values('1003', '赵二');
+Insert Into student (stuid, stunm) Values('1004', '王五');
+Insert Into student (stuid, stunm) Values('1005', '刘青');
+Insert Into student (stuid, stunm) Values('1006', '周明');
+
+-- 课程表数据
+Insert Into courses (courseno, coursenm) Values('C001', '大学语文');
+Insert Into courses (courseno, coursenm) Values('C002', '新视野英语');
+Insert Into courses (courseno, coursenm) Values('C003', '离散数学');
+Insert Into courses (courseno, coursenm) Values('C004', '概率论与数理统计');
+Insert Into courses (courseno, coursenm) Values('C005', '线性代数');
+Insert Into courses (courseno, coursenm) Values('C006', '高等数学(一)');
+Insert Into courses (courseno, coursenm) Values('C007', '高等数学(二)');
+
+-- 成绩表数据
+
+Insert Into score(stuid, courseno, scores) Values('1001', 'C001', 67);
+Insert Into score(stuid, courseno, scores) Values('1002', 'C001', 68);
+Insert Into score(stuid, courseno, scores) Values('1003', 'C001', 69);
+Insert Into score(stuid, courseno, scores) Values('1004', 'C001', 70);
+Insert Into score(stuid, courseno, scores) Values('1005', 'C001', 71);
+Insert Into score(stuid, courseno, scores) Values('1006', 'C001', 72);
+Insert Into score(stuid, courseno, scores) Values('1001', 'C002', 87);
+Insert Into score(stuid, courseno, scores) Values('1002', 'C002', 88);
+Insert Into score(stuid, courseno, scores) Values('1003', 'C002', 89);
+Insert Into score(stuid, courseno, scores) Values('1004', 'C002', 90);
+Insert Into score(stuid, courseno, scores) Values('1005', 'C002', 91);
+Insert Into score(stuid, courseno, scores) Values('1006', 'C002', 92);
+Insert Into score(stuid, courseno, scores) Values('1001', 'C003', 83);
+Insert Into score(stuid, courseno, scores) Values('1002', 'C003', 84);
+Insert Into score(stuid, courseno, scores) Values('1003', 'C003', 85);
+Insert Into score(stuid, courseno, scores) Values('1004', 'C003', 86);
+Insert Into score(stuid, courseno, scores) Values('1005', 'C003', 87);
+Insert Into score(stuid, courseno, scores) Values('1006', 'C003', 88);
+Insert Into score(stuid, courseno, scores) Values('1001', 'C004', 88);
+Insert Into score(stuid, courseno, scores) Values('1002', 'C004', 89);
+Insert Into score(stuid, courseno, scores) Values('1003', 'C004', 90);
+Insert Into score(stuid, courseno, scores) Values('1004', 'C004', 91);
+Insert Into score(stuid, courseno, scores) Values('1005', 'C004', 92);
+Insert Into score(stuid, courseno, scores) Values('1006', 'C004', 93);
+Insert Into score(stuid, courseno, scores) Values('1001', 'C005', 77);
+Insert Into score(stuid, courseno, scores) Values('1002', 'C005', 78);
+Insert Into score(stuid, courseno, scores) Values('1003', 'C005', 79);
+```
+
+> 查询每个学生的 每门课程与每门成绩
+
+``` sql
+select  st.stuid as 'ID' ,  st.stunm  as '姓名', cs.coursenm  as '课程名' ,sc.scores as '成绩'   from  student st, score sc ,courses cs
+where st.stuid = sc.stuid and sc.courseno = cs.courseno
+```
+
+> 进行行转列
+
+``` sql
+select st.stuid as '编号' , st.stunm  as '姓名' ,
+Max(case c.coursenm when '大学语文' then s.scores else 0 end ) as '大学语文',
+max(case c.coursenm when '新视野英语' then IFNULL(s.scores,0)else 0 end) as  '新视野英语',
+Max(case c.coursenm when '离散数学' then IFNULL(s.scores,0) ELSE 0 END)  as '离散数学',
+MAX(case c.coursenm when '概率论与数理统计' then IFNULL(s.scores,0) else 0 end) as '概率论与数理统计',
+MAX(case c.coursenm  when '线性代数' then IFNULL(s.scores,0) else 0 END) as  '线性代数',
+MAX(case c.coursenm when '高等数学(一)' THEN IFNULL(s.scores,0) else 0 end) as '高等数学(一)',
+MAX(case c.coursenm when '高等数学(二)' THEN IFNULL(s.scores,0) else 0 end) as '高等数学(二)'
+from  student st
+LEFT JOIN score s on st.stuid = s.stuid
+LEFT JOIN courses c on c.courseno = s.courseno
+GROUP BY st.stuid
+```
+
+> GROUP_CONCAT() 组连接，也非常有用
+
+``` sql
+select   s.stuid as  '编号' , GROUP_CONCAT(s.courseno) as '课程号' , GROUP_CONCAT(s.scores) as '成绩'  from score s GROUP BY  s.stuid
+```
+
+
+
+
+
+
+
